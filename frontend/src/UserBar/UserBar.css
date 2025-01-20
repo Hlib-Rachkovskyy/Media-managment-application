@@ -1,0 +1,8 @@
+.user-bar {
+    width: 90%;
+    height: 10%;
+    background-color: #fde3a9;
+    color: white;
+    text-align: center;
+    position: fixed;
+}

@@ -1,0 +1,32 @@
+.folder-list {
+    width: 10%;
+    height: 100%;
+    white-space: nowrap; /* idk */
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    position: fixed;
+    overflow-x: hidden;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.folder-list::-webkit-scrollbar {
+    display: none;
+}
+.folder-list-item {
+    width: 100%;
+    padding: 4px;
+    border-bottom: 1px solid aliceblue;
+    border-top: 1px solid aliceblue;
+    user-select: none;
+}
+
+.folder-list-item:hover {
+    background-color: aliceblue;
+    cursor: pointer;
+}
+.folder-list-item.active {
+    background-color: cornflowerblue;
+    color: white;
+    font-weight: bold;
+}

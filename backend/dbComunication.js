@@ -8,7 +8,7 @@ function connectToDatabase() { // Probably change to ORM or Pools
     });
 }
 
-// User functionality
+// UserBar functionality
 
 async function login(email, password) {
     const [rows, fields] = await connection(`SELECT * FROM users WHERE email=${email}`);
