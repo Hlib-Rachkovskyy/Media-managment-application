@@ -1,83 +1,103 @@
-const mysql = require('mysql2');
-function connectToDatabase() { // Probably change to ORM or Pools
-    const connection = mysql.createConnection({
-        host: 'localhost',       // MySQL server address
-        user: 'root',            // MySQL username
-        password: 'my-secret-pw',// MySQL password
-        database: 'mysql'   // Name of the database to connect to
-    });
+const mysql = require('mysql2/promise');
+
+// Database connection pool
+const pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: 'my-secret-pw',
+    database: 'mysql',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+});
+
+
+
+// Get all images for a user
+async function getImagesByUserId(userId) {
+    const query = `
+    SELECT id, name, path, size, upload_date 
+    FROM Files 
+    WHERE Users_id = ?
+  `;
+    const [rows] = await pool.query(query, [userId]);
+
+    return rows;
 }
 
-// UserBar functionality
-
-async function login(email, password) {
-    const [rows, fields] = await connection(`SELECT * FROM users WHERE email=${email}`);
-
+// Get all folders for a user
+async function getFoldersByUserId(userId) {
+    const query = `
+    SELECT id, name, created_at 
+    FROM Folder 
+    WHERE Users_id = ?
+  `;
+    const [rows] = await pool.query(query, [userId]);
+    return rows;
 }
 
-function register(username, email, password_hash, created_at) {
-
+// Create a new folder for a user
+async function createFolder(userId, folderName) {
+    const query = `
+    INSERT INTO Folder (name, Users_id, created_at)
+    VALUES (?, ?, ?)
+  `;
+    const createdAt = new Date().toISOString();
+    const [result] = await pool.query(query, [folderName, userId, createdAt]);
+    return { id: result.insertId, name: folderName, created_at: createdAt };
 }
 
-function getUser(user_id){
-
+// Delete a folder by ID
+async function deleteFolder(folderId) {
+    const query = `
+    DELETE FROM Folder 
+    WHERE id = ?
+  `;
+    const [result] = await pool.query(query, [folderId]);
+    return result.affectedRows > 0 ? folderId : null;
 }
 
-function changeUserData(user_id){
-
+// Add an image to a folder
+async function addImageToFolder(fileId, folderId) {
+    const query = `
+    INSERT INTO folder_images (folder_id, file_id)
+    VALUES (?, ?)
+  `;
+    const [result] = await pool.query(query, [folderId, fileId]);
+    return { fileId, folderId, insertId: result.insertId };
 }
 
-// Main page functionality
+// Remove an image from a folder
+async function removeImageFromFolder(fileId, folderId) {
+    const query = `
+    DELETE FROM folder_images 
+    WHERE folder_id = ? AND file_id = ?
+  `;
+    const [result] = await pool.query(query, [folderId, fileId]);
+    return result.affectedRows > 0 ? { fileId, folderId } : null;
+}
 
-function getFiles(sort_criteria=null, group_criteria=null){
-    if (sort_criteria === null) {
-
-    }
+// Get all images for a specific folder
+async function getImagesByFolderId(folderId) {
+    const query = `
+    SELECT f.id, f.name, f.path, f.size, f.upload_date
+    FROM Files f
+    JOIN FileFolder ff ON f.id = ff.Files_id
+    WHERE ff.FileFolder_id = ?
+  `;
+    const [rows] = await pool.query(query, [folderId]);
+    return rows;
 }
 
 
-// One file functionality
 
-function getFileData(file_id){
-
-}
-
-function addNewFile(user_id, name, path, size, upload_date, metadata){
-
-}
-
-function deleteFile(user_id, file_id){
-
-}
-
-// One folder functionality
-
-function createFolder(name, created_at){
-
-}
-
-function changeFolderName(folder_id, new_name){
-
-}
-
-function deleteFolder(folder_id){
-
-}
-
-function addFileToFolder(file_id, folder_id){
-
-}
-
-// Tag functionality
-// I have tag created table but it is more tag appointed
-
-function addTag(tag_name, file_id){ // complex by changing, ai should generate it and then check if there is alread in database such tag we save it as from by who created perspective and as by which are used
-
-}
-
-function deleteTagFromFile(file_id){ // delete connection
-
-}
-
-function regenerateTag(file_id){} // two previous just in one
-
+// Export functions
+module.exports = {
+    getImagesByUserId,
+    getFoldersByUserId,
+    createFolder,
+    deleteFolder,
+    addImageToFolder,
+    removeImageFromFolder,
+    getImagesByFolderId
+};

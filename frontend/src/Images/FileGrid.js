@@ -1,8 +1,8 @@
 import './FileGrid.css';
-import {useEffect, useState} from "react";
+import { useState, useEffect } from "react";
 import ImagePopup from "./ImagePopup";
 
-function FileGrid({ listOfAllFolders, currentFolder, images }) {
+function FileGrid({  images }) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [currentImage, setCurrentImage] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -14,8 +14,8 @@ function FileGrid({ listOfAllFolders, currentFolder, images }) {
     const indexOfFirstImage = indexOfLastImage - imagesPerPage;
     const currentImages = images.slice(indexOfFirstImage, indexOfLastImage);
 
-    const handlePopupClick = (url) => {
-        setCurrentImage(url);
+    const handlePopupClick = (image) => {
+        setCurrentImage(image);
         setIsPopupOpen(true);
     };
 
@@ -34,6 +34,7 @@ function FileGrid({ listOfAllFolders, currentFolder, images }) {
             setCurrentPage(currentPage - 1);
         }
     };
+
     useEffect(() => {
         setCurrentPage(1);
     }, [images]);
@@ -52,15 +53,15 @@ function FileGrid({ listOfAllFolders, currentFolder, images }) {
                 ))}
             </div>
 
-            {isPopupOpen && <ImagePopup listOfAllUserFolders= {listOfAllFolders} image={currentImage} closePopup={closePopup} currentFolder={currentFolder}/>}
+            {isPopupOpen && <ImagePopup image={currentImage} closePopup={closePopup} />}
 
             <div className="pagination-controls">
                 <button onClick={goToPreviousPage} disabled={currentPage === 1}>
                     Previous
                 </button>
                 <span>
-                    Page {currentPage} of {totalPages}
-                </span>
+          Page {currentPage} of {totalPages}
+        </span>
                 <button onClick={goToNextPage} disabled={currentPage === totalPages}>
                     Next
                 </button>

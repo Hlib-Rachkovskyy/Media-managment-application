@@ -1,24 +1,25 @@
 import './UserBar.css';
 import { useState } from "react";
-import CreateNewFolderPopup from "./CreateNewFolderPopup"; // maybe folders getting
+import CreateNewFolderPopup from "./CreateNewFolderPopup";
 
 function UserBar({ folders, setSortOrder, setSortDirection, sortOrder, sortDirection, setCurrentFolder }) {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null); // State to hold selected image
+    const [selectedImage, setSelectedImage] = useState(null);
 
     const handleSortChange = (e) => {
         const value = e.target.value;
-        setSortOrder(value);  // Pass value to parent
+        setSortOrder(value);
     };
 
     const handleDirectionChange = () => {
         const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-        setSortDirection(newDirection); // Pass direction to parent
+        setSortDirection(newDirection);
     };
 
 
     const handleAddFolderEvent = () => {
         setIsPopupOpen(true);
+
     }
 
 
@@ -26,22 +27,20 @@ function UserBar({ folders, setSortOrder, setSortDirection, sortOrder, sortDirec
 
     }
 
-    // Handles image upload (file selection)
     const handleFileChange = (event) => {
-        const file = event.target.files[0]; // Get the first selected file
+        const file = event.target.files[0];
         if (file) {
-            // For now, we'll log the file, but you can replace this with an API call to upload the image
             console.log('Selected image:', file);
-            setSelectedImage(URL.createObjectURL(file)); // Set the preview URL
+            setSelectedImage(URL.createObjectURL(file));
         }
     };
 
     const handleDrop = (event) => {
         event.preventDefault();
-        const file = event.dataTransfer.files[0]; // Get the dropped file
+        const file = event.dataTransfer.files[0];
         if (file) {
             console.log('Dropped image:', file);
-            setSelectedImage(URL.createObjectURL(file)); // Set the preview URL
+            setSelectedImage(URL.createObjectURL(file));
         }
     };
 
@@ -72,7 +71,7 @@ function UserBar({ folders, setSortOrder, setSortDirection, sortOrder, sortDirec
                     type="file"
                     accept="image/*"
                     onChange={handleFileChange}
-                    style={{display: 'none'}} // Hide file input
+                    style={{display: 'none'}}
                     id="fileInput"
                 />
                 <label htmlFor="fileInput" className="upload-area-label">
@@ -87,9 +86,11 @@ function UserBar({ folders, setSortOrder, setSortDirection, sortOrder, sortDirec
                     <option key={folder.id} value={folder.id}>{folder.name}</option>
                 ))}
             </select>
-            <button className='main' onClick={setCurrentFolder('Main')}>Return to main page</button>
+            <button className='main' onClick={setCurrentFolder(null)}>Return to main page</button>
 
-            {isPopupOpen && <CreateNewFolderPopup closePopup={() => setIsPopupOpen(false)}/>}
+            {isPopupOpen && <CreateNewFolderPopup closePopup={() => setIsPopupOpen(false)} createFolder={() => {
+
+            }}/>}
         </header>
     );
 }

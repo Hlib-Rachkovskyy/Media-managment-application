@@ -3,76 +3,84 @@ import FolderList from "./Folders/FolderList";
 import FileGrid from "./Images/FileGrid";
 import UserBar from "./UserBar/UserBar";
 import {useEffect, useState} from "react";
+import axios from 'axios'
 
 function App() {
-    // Add all images
-    // Files Table
-
     const [Images, setImages] = useState([]);
+    const [allUserFolders, setAllUserFolders] = useState([]);
+    const [currentFolder, setCurrentFolder] = useState(null);
+    const [sortOrder, setSortOrder] = useState('name');
+    const [sortDirection, setSortDirection] = useState('asc');
+
+
+    const fetchImages = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/files');
+            if (response.ok) {
+                const data = await response.json();
+                setImages(data);
+            } else {
+                console.error('Failed to fetch images:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching images:', error);
+        }
+    };
+
+
+
+    const fetchFolders = async () => {
+        try {
+            const response = await fetch('http://localhost:5000/folders');
+            if (response.ok) {
+                const data = await response.json();
+                setAllUserFolders(data);
+            } else {
+                console.error('Failed to fetch folders:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching folders:', error);
+        }
+    };
+
+
+
+    const fetchImagesFromFolder = async (folderId) => {
+        if (!folderId) {
+            console.error('Folder ID is required');
+            return;
+        }
+        try {
+            const response = await fetch(`http://localhost:5000/image_from_folder?folderId=${folderId}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Error fetching images:', errorData.error);
+                return;
+            }
+            const data = await response.json();
+            console.log(data)
+            setImages(data);
+        } catch (error) {
+            console.error('Network error:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchImages = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/files'); // Replace with your API URL
-                const data = await response.json();
-            } catch (error) {
-                console.error('Error fetching images:', error);
-            }
-        };
+        fetchFolders();
+    }, []);
 
-        fetchImages();
-    }, []);;
-
-
-
-// Folder Table
-    const FolderNamesAndIndexes = [
-        {
-            "id": 1,
-            "name": "Folder1",
-            "created_at": "2024-12-16T19:44:34.757Z"
-        },
-        {
-            "id": 2,
-            "name": "Folder2",
-            "created_at": "2024-12-16T19:45:34.757Z"
+    useEffect(() => {
+        console.log(currentFolder)
+        if (currentFolder) {
+            fetchImagesFromFolder(currentFolder);
+        } else {
+            fetchImages();
         }
-    ];
-
-// FileFolder Table (many-to-many between Files and Folder)
-    const fileFolder = [
-        {
-            "FileFolder_id": 1,
-            "Files_id": 1
-        },
-        {
-            "FileFolder_id": 1,
-            "Files_id": 2
-        }
-    ];
-
-
-
-
-
-    const [allUserFolders, setAllUserFolders] = useState(FolderNamesAndIndexes);
-
-    const [currentFolder, setCurrentFolder] = useState('Main');
-    const [sortOrder, setSortOrder] = useState('name'); // Default to 'name'
-    const [sortDirection, setSortDirection] = useState('asc'); // Default to 'ascending'
-
-    const handleSortOrderChange = (order) => {
-        setSortOrder(order);
-    };
-
-    const handleSortDirectionChange = (direction) => {
-        setSortDirection(direction);
-    };
+    }, [currentFolder]);
 
     useEffect(() => {
         const sortedImages = [...Images].sort((a, b) => {
             let valueA, valueB;
-
             if (sortOrder === 'name') {
                 valueA = a.name.toLowerCase();
                 valueB = b.name.toLowerCase();
@@ -83,7 +91,6 @@ function App() {
                 valueA = a.size;
                 valueB = b.size;
             }
-
             if (sortDirection === 'asc') {
                 return valueA > valueB ? 1 : -1;
             } else {
@@ -92,25 +99,36 @@ function App() {
         });
 
         setImages(sortedImages);
-    }, [sortOrder, sortDirection]);
+        }, [sortOrder, sortDirection]);
 
+    const handleSortOrderChange = (order) => {
+        setSortOrder(order);
+    };
 
-  return (
-    <div className="App">
-      <div className="Folder-left-list"><FolderList folders ={FolderNamesAndIndexes} /></div>
-        <div className="Split"></div>
-      <div className="Image-view">
-          <UserBar
-              folders={FolderNamesAndIndexes}
-              setSortOrder={handleSortOrderChange}
-              setSortDirection={handleSortDirectionChange}
-              sortOrder={sortOrder}
-              sortDirection={sortDirection}
-              setCurrentFolder={setCurrentFolder}
-          />
-          <FileGrid listOfAllFolders = {allUserFolders} currentFolder = {currentFolder} images = {Images}/></div>
-    </div>
-  );
-}
+    const handleSortDirectionChange = (direction) => {
+        setSortDirection(direction);
+    };
+        return (
+            <div className="App">
+                <div className="Folder-left-list">
+                    <FolderList
+                        folders={allUserFolders}
+                        setCurrentFolder={setCurrentFolder}/></div>
+                <div className="Split"></div>
+                <div className="Image-view">
+                    <UserBar
+                        folders={allUserFolders}
+                        setSortOrder={handleSortOrderChange}
+                        setSortDirection={handleSortDirectionChange}
+                        sortOrder={sortOrder}
+                        sortDirection={sortDirection}
+                        setCurrentFolder={setCurrentFolder}
+                    />
+                    <FileGrid listOfAllFolders={allUserFolders}
+                              images={Images}
+                                /></div>
+            </div>
+        );
+    }
 
 export default App;

@@ -1,20 +1,28 @@
 import './FolderList.css';
-import {useState} from "react";
+import { useState } from "react";
 
+function FolderList({ folders, setCurrentFolder }) {
+    const [selectedIndex, setSelectedIndex] = useState(-1);
 
-function FolderList({folders, }){
-    // todo add + delete
-    const [SelectedIndex, setSelectedIndex] = useState(-1) // setImages
-    const handleClickEvent = (index) => setSelectedIndex(index); // add send to user images of folder
+    const handleClickEvent = (index, folderId) => {
+        setSelectedIndex(index);
+        setCurrentFolder(folderId);
+    };
 
-
-    return (<><ul className='folder-list'>
-        {
-            folders.map((folder, id) => (
-                <li className={SelectedIndex === id ? 'folder-list-item active' : 'folder-list-item'} title={folder.name}  key={id} onClick={() => handleClickEvent(id)}>{folder.name}</li>
+    return (
+        <ul className='folder-list'>
+            {folders.map((folder, index) => (
+                <li
+                    className={selectedIndex === index ? 'folder-list-item active' : 'folder-list-item'}
+                    title={folder.name}
+                    key={folder.id}
+                    onClick={() => handleClickEvent(index, folder.id)}
+                >
+                    {folder.name}
+                </li>
             ))}
-        </ul></>)
-
+        </ul>
+    );
 }
 
 export default FolderList;

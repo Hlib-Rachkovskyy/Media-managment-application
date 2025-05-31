@@ -1,20 +1,15 @@
 import '../Popup.css'
-import {useState} from "react";
+import { useState } from "react";
 
-function ImagePopup({ image, closePopup, listOfAllUserFolders, currentFolder }) {
+function ImagePopup({ image, closePopup, listOfAllUserFolders = [], currentFolder }) {
     const [selectedFolder, setSelectedFolder] = useState('');
 
     const handleAddToFolder = () => {
         if (selectedFolder) {
-            // add to folder
             closePopup();
         }
         console.log(selectedFolder);
     };
-
-    const handleDeleteFromFolder = () => {
-        // delete from currnet folder currentFolder
-    }
 
     return (
         <div className="popup-overlay" onClick={closePopup}>
@@ -24,14 +19,18 @@ function ImagePopup({ image, closePopup, listOfAllUserFolders, currentFolder }) 
 
                 <select value={selectedFolder} onChange={(e) => setSelectedFolder(e.target.value)}>
                     <option value="">Select Folder</option>
-                    {listOfAllUserFolders.map((folder) => (
-                        <option key={folder.id} value={folder.id}>{folder.name}</option>
-                    ))}
+                    {listOfAllUserFolders && listOfAllUserFolders.length > 0 ? (
+                        listOfAllUserFolders.map((folder) => (
+                            <option key={folder.id} value={folder.id}>{folder.name}</option>
+                        ))
+                    ) : (
+                        <option disabled>No folders available</option>
+                    )}
                 </select>
                 <button type='submit' onClick={handleAddToFolder}>Add to Folder</button>
                 {currentFolder !== 'Main' && (
-                <button className='button-to-delete-from-folder' onClick={handleDeleteFromFolder}>Delete from folder</button>) }
-
+                    <button className='button-to-delete-from-folder' onClick={handleDeleteFromFolder}>Delete from folder</button>
+                )}
             </div>
         </div>
     );

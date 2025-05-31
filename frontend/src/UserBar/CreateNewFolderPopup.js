@@ -7,7 +7,7 @@ const CreateNewFolderPopup = ({ closePopup, createFolder }) => {
 
     const handleChange = (e) => {
         setFolderName(e.target.value);
-        setError(""); // Clear error when user types
+        setError("");
     };
 
     const handleSubmit = (e) => {
@@ -17,8 +17,8 @@ const CreateNewFolderPopup = ({ closePopup, createFolder }) => {
         } else if (folderName.length < 3 || folderName.length > 60) {
             setError("Folder name must be between 3 and 60 characters.");
         } else {
-            createFolder(folderName); // Call the function to create the folder
-            closePopup(); // Close the popup after creating the folder
+            createFolder(folderName);
+            closePopup();
         }
     };
 
